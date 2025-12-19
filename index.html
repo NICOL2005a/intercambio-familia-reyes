@@ -81,12 +81,17 @@
       color: white;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
-    .input-group button:hover { background: #ff6f9c; }
-
     ul { padding-left: 18px; }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
 
     li a {
       color: #a0004f;
@@ -94,7 +99,16 @@
       font-weight: 500;
     }
 
-    /* Modal Navidad */
+    .delete-btn {
+      background: #ff6f9c;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      padding: 6px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -110,10 +124,8 @@
       font-family: 'Mountains of Christmas', cursive;
       font-size: 3rem;
       text-align: center;
-      animation: zoomIn 1.3s ease;
     }
 
-    /* Copos de nieve */
     .snowflake {
       position: fixed;
       top: -10px;
@@ -124,18 +136,8 @@
       opacity: 0.8;
     }
 
-    @keyframes fall {
-      to { transform: translateY(110vh); }
-    }
-
-    @keyframes pulse {
-      50% { transform: scale(1.05); }
-    }
-
-    @keyframes zoomIn {
-      from { transform: scale(0.4); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+    @keyframes fall { to { transform: translateY(110vh); } }
+    @keyframes pulse { 50% { transform: scale(1.05); } }
   </style>
 </head>
 <body>
@@ -144,33 +146,17 @@
 <p class="fecha">📅 24 de diciembre de 2025</p>
 <div class="contador" id="contador"></div>
 
-<div class="contenedor">
-  <script type="module">
-    const personas = ['Claudia Reyes','Lupita Reyes','Raúl Reyes','Nicol Reyes'];
-    personas.forEach(nombre => {
-      document.write(`
-        <div class="card">
-          <h2>${nombre}</h2>
-          <div class="input-group">
-            <input placeholder="Nombre del regalo" id="name-${nombre}">
-            <input placeholder="Link del regalo" id="link-${nombre}">
-            <button onclick="agregar('${nombre}')">Agregar regalo</button>
-          </div>
-          <ul id="list-${nombre}"></ul>
-        </div>
-      `);
-    });
-  </script>
-</div>
+<div class="contenedor" id="contenedor"></div>
 
 <div class="modal" id="modal">
   <h1>🎄 FELÍZ NAVIDAD FAMILIA 🎄</h1>
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const personas = ['Claudia Reyes','Lupita Reyes','Raúl Reyes','Nicol Reyes'];
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWzG1qUHOEvccGt3s6HDUeLVCmy1xTjHw",
@@ -185,40 +171,52 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  window.agregar = function(nombre) {
-    const name = document.getElementById(`name-${nombre}`).value;
-    const link = document.getElementById(`link-${nombre}`).value;
-    if (!name || !link) return;
-
-    push(ref(db, 'regalos/' + nombre), { name, link });
-    document.getElementById(`name-${nombre}`).value = '';
-    document.getElementById(`link-${nombre}`).value = '';
-  }
-
-  window.eliminar = function(nombre, key) {
-    remove(ref(db, 'regalos/' + nombre + '/' + key));
-  }`).value;
-    const link = document.getElementById(`link-${nombre}`).value;
-    if (!name || !link) return;
-
-    push(ref(db, 'regalos/' + nombre), { name, link });
-    document.getElementById(`name-${nombre}`).value = '';
-    document.getElementById(`link-${nombre}`).value = '';
-  }
+  const contenedor = document.getElementById('contenedor');
 
   personas.forEach(nombre => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <h2>${nombre}</h2>
+      <div class="input-group">
+        <input id="name-${nombre}" placeholder="Nombre del regalo">
+        <input id="link-${nombre}" placeholder="Link del regalo">
+        <button onclick="agregar('${nombre}')">Agregar regalo</button>
+      </div>
+      <ul id="list-${nombre}"></ul>
+    `;
+    contenedor.appendChild(card);
+
     const listaRef = ref(db, 'regalos/' + nombre);
-    onValue(listaRef, snapshot => {
+    onValue(listaRef, snap => {
       const ul = document.getElementById(`list-${nombre}`);
       ul.innerHTML = '';
-      snapshot.forEach(child => {
+      snap.forEach(child => {
         const item = child.val();
-        ul.innerHTML += `<li style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><a href="${item.link}" target="_blank">${item.name}</a><button style="background:#ff6f9c;border:none;border-radius:10px;color:white;padding:6px 10px;font-size:16px;cursor:pointer" onclick="eliminar('${nombre}','${child.key}')">X</button></li>`;
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <a href="${item.link}" target="_blank">${item.name}</a>
+          <button class="delete-btn" onclick="eliminar('${nombre}','${child.key}')">🗑️</button>
+        `;
+        ul.appendChild(li);
       });
     });
   });
 
-  // Cuenta regresiva
+  window.agregar = (nombre) => {
+    const name = document.getElementById(`name-${nombre}`).value;
+    const link = document.getElementById(`link-${nombre}`).value;
+    if (!name || !link) return;
+    push(ref(db, 'regalos/' + nombre), { name, link });
+    document.getElementById(`name-${nombre}`).value = '';
+    document.getElementById(`link-${nombre}`).value = '';
+  };
+
+  window.eliminar = (nombre, key) => {
+    if (!confirm('¿Eliminar este regalo?')) return;
+    remove(ref(db, 'regalos/' + nombre + '/' + key));
+  };
+
   const target = new Date('December 24, 2025 00:00:00').getTime();
   const contador = document.getElementById('contador');
   const modal = document.getElementById('modal');
@@ -228,7 +226,7 @@
     const diff = target - now;
     if (diff <= 0) {
       modal.style.display = 'flex';
-      contador.textContent = '🎁 ¡Hoy es Navidad! 🎁';
+      contador.textContent = '🎁 ¡Feliz Navidad Familia! 🎁';
       return;
     }
     const d = Math.floor(diff / (1000*60*60*24));
@@ -238,7 +236,6 @@
     contador.textContent = `⏳ Faltan ${d} días ${h}h ${m}m ${s}s`;
   }, 1000);
 
-  // Copos de nieve
   setInterval(() => {
     const snow = document.createElement('div');
     snow.className = 'snowflake';
