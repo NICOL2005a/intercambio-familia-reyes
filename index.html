@@ -170,7 +170,7 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDWzG1qUHOEvccGt3s6HDUeLVCmy1xTjHw",
@@ -195,6 +195,17 @@
     document.getElementById(`link-${nombre}`).value = '';
   }
 
+  window.eliminar = function(nombre, key) {
+    remove(ref(db, 'regalos/' + nombre + '/' + key));
+  }`).value;
+    const link = document.getElementById(`link-${nombre}`).value;
+    if (!name || !link) return;
+
+    push(ref(db, 'regalos/' + nombre), { name, link });
+    document.getElementById(`name-${nombre}`).value = '';
+    document.getElementById(`link-${nombre}`).value = '';
+  }
+
   personas.forEach(nombre => {
     const listaRef = ref(db, 'regalos/' + nombre);
     onValue(listaRef, snapshot => {
@@ -202,7 +213,7 @@
       ul.innerHTML = '';
       snapshot.forEach(child => {
         const item = child.val();
-        ul.innerHTML += `<li><a href="${item.link}" target="_blank">${item.name}</a></li>`;
+        ul.innerHTML += `<li style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><a href="${item.link}" target="_blank">${item.name}</a><button style="background:#ff6f9c;border:none;border-radius:8px;color:white;padding:4px 8px;cursor:pointer" onclick="eliminar('${nombre}','${child.key}')">X</button></li>`;
       });
     });
   });
