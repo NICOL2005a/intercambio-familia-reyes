@@ -145,7 +145,6 @@
 <div class="contador" id="contador"></div>
 
 <div class="contenedor">
-  <!-- PLANTILLA -->
   <script>
     const personas = ['Claudia Reyes','Lupita Reyes','Raúl Reyes','Nicol Reyes'];
     personas.forEach(nombre => {
@@ -168,31 +167,45 @@
   <h1>🎄 FELÍZ NAVIDAD FAMILIA 🎄</h1>
 </div>
 
-<script>
-  function agregar(nombre) {
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWzG1qUHOEvccGt3s6HDUeLVCmy1xTjHw",
+    authDomain: "intercambio-familia-reyes.firebaseapp.com",
+    databaseURL: "https://intercambio-familia-reyes-default-rtdb.firebaseio.com",
+    projectId: "intercambio-familia-reyes",
+    storageBucket: "intercambio-familia-reyes.firebasestorage.app",
+    messagingSenderId: "355546040744",
+    appId: "1:355546040744:web:467ab6b61db3268d96f59d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.agregar = function(nombre) {
     const name = document.getElementById(`name-${nombre}`).value;
     const link = document.getElementById(`link-${nombre}`).value;
     if (!name || !link) return;
 
-    const data = JSON.parse(localStorage.getItem(nombre) || '[]');
-    data.push({ name, link });
-    localStorage.setItem(nombre, JSON.stringify(data));
-    mostrar(nombre);
-
+    push(ref(db, 'regalos/' + nombre), { name, link });
     document.getElementById(`name-${nombre}`).value = '';
     document.getElementById(`link-${nombre}`).value = '';
   }
 
-  function mostrar(nombre) {
-    const ul = document.getElementById(`list-${nombre}`);
-    ul.innerHTML = '';
-    const data = JSON.parse(localStorage.getItem(nombre) || '[]');
-    data.forEach(item => {
-      ul.innerHTML += `<li><a href="${item.link}" target="_blank">${item.name}</a></li>`;
+  personas.forEach(nombre => {
+    const listaRef = ref(db, 'regalos/' + nombre);
+    onValue(listaRef, snapshot => {
+      const ul = document.getElementById(`list-${nombre}`);
+      ul.innerHTML = '';
+      snapshot.forEach(child => {
+        const item = child.val();
+        ul.innerHTML += `<li><a href="${item.link}" target="_blank">${item.name}</a></li>`;
+      });
     });
-  }
-
-  personas.forEach(mostrar);
+  });
 
   // Cuenta regresiva
   const target = new Date('December 24, 2025 00:00:00').getTime();
