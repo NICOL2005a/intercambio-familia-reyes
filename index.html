@@ -145,24 +145,8 @@
 <div class="contador" id="contador"></div>
 
 <div class="contenedor">
-  <script type="module">type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDWzG1qUHOEvccGt3s6HDUeLVCmy1xTjHw",
-    authDomain: "intercambio-familia-reyes.firebaseapp.com",
-    databaseURL: "https://intercambio-familia-reyes-default-rtdb.firebaseio.com",
-    projectId: "intercambio-familia-reyes",
-    storageBucket: "intercambio-familia-reyes.firebasestorage.app",
-    messagingSenderId: "355546040744",
-    appId: "1:355546040744:web:467ab6b61db3268d96f59d"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-const personas = ['C
+  <script type="module">
+    const personas = ['Claudia Reyes','Lupita Reyes','Raúl Reyes','Nicol Reyes'];
     personas.forEach(nombre => {
       document.write(`
         <div class="card">
@@ -229,7 +213,7 @@ const personas = ['C
       ul.innerHTML = '';
       snapshot.forEach(child => {
         const item = child.val();
-        ul.innerHTML += `<li style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><a href="${item.link}" target="_blank">${item.name}</a><button style="background:#ff6f9c;border:none;border-radius:8px;color:white;padding:4px 8px;cursor:pointer" onclick="eliminar('${nombre}','${child.key}')">X</button></li>`;
+        ul.innerHTML += `<li style="display:flex;justify-content:space-between;align-items:center;gap:10px;"><a href="${item.link}" target="_blank">${item.name}</a><button style="background:#ff6f9c;border:none;border-radius:10px;color:white;padding:6px 10px;font-size:16px;cursor:pointer" onclick="eliminar('${nombre}','${child.key}')">X</button></li>`;
       });
     });
   });
