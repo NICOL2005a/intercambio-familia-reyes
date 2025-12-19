@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intercambio Familia Reyes</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      background: #f8c8dc;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-family: 'Mountains of Christmas', cursive;
+      color: #7a1c3f;
+      font-size: 2.6rem;
+      margin-bottom: 10px;
+    }
+
+    .fecha, .contador {
+      text-align: center;
+      color: #5a1a34;
+      margin-bottom: 15px;
+    }
+
+    .contador {
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    .contenedor {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.75);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover { transform: translateY(-5px); }
+
+    .card h2 {
+      text-align: center;
+      color: #7a1c3f;
+      margin-bottom: 15px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      border: none;
+      background: white;
+    }
+
+    .input-group button {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: none;
+      background: #ff8fb1;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .input-group button:hover { background: #ff6f9c; }
+
+    ul { padding-left: 18px; }
+
+    li a {
+      color: #a0004f;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* Modal Navidad */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .modal h1 {
+      color: white;
+      font-family: 'Mountains of Christmas', cursive;
+      font-size: 3rem;
+      text-align: center;
+      animation: zoomIn 1.3s ease;
+    }
+
+    /* Copos de nieve */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: white;
+      font-size: 1em;
+      user-select: none;
+      animation: fall linear infinite;
+      opacity: 0.8;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(110vh); }
+    }
+
+    @keyframes pulse {
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.4); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎄 Intercambio de la Familia Reyes 🎄</h1>
+<p class="fecha">📅 24 de diciembre de 2025</p>
+<div class="contador" id="contador"></div>
+
+<div class="contenedor">
+  <!-- PLANTILLA -->
+  <script>
+    const personas = ['Claudia Reyes','Lupita Reyes','Raúl Reyes','Nicol Reyes'];
+    personas.forEach(nombre => {
+      document.write(`
+        <div class="card">
+          <h2>${nombre}</h2>
+          <div class="input-group">
+            <input placeholder="Nombre del regalo" id="name-${nombre}">
+            <input placeholder="Link del regalo" id="link-${nombre}">
+            <button onclick="agregar('${nombre}')">Agregar regalo</button>
+          </div>
+          <ul id="list-${nombre}"></ul>
+        </div>
+      `);
+    });
+  </script>
+</div>
+
+<div class="modal" id="modal">
+  <h1>🎄 FELÍZ NAVIDAD FAMILIA 🎄</h1>
+</div>
+
+<script>
+  function agregar(nombre) {
+    const name = document.getElementById(`name-${nombre}`).value;
+    const link = document.getElementById(`link-${nombre}`).value;
+    if (!name || !link) return;
+
+    const data = JSON.parse(localStorage.getItem(nombre) || '[]');
+    data.push({ name, link });
+    localStorage.setItem(nombre, JSON.stringify(data));
+    mostrar(nombre);
+
+    document.getElementById(`name-${nombre}`).value = '';
+    document.getElementById(`link-${nombre}`).value = '';
+  }
+
+  function mostrar(nombre) {
+    const ul = document.getElementById(`list-${nombre}`);
+    ul.innerHTML = '';
+    const data = JSON.parse(localStorage.getItem(nombre) || '[]');
+    data.forEach(item => {
+      ul.innerHTML += `<li><a href="${item.link}" target="_blank">${item.name}</a></li>`;
+    });
+  }
+
+  personas.forEach(mostrar);
+
+  // Cuenta regresiva
+  const target = new Date('December 24, 2025 00:00:00').getTime();
+  const contador = document.getElementById('contador');
+  const modal = document.getElementById('modal');
+
+  setInterval(() => {
+    const now = new Date().getTime();
+    const diff = target - now;
+    if (diff <= 0) {
+      modal.style.display = 'flex';
+      contador.textContent = '🎁 ¡Hoy es Navidad! 🎁';
+      return;
+    }
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+    contador.textContent = `⏳ Faltan ${d} días ${h}h ${m}m ${s}s`;
+  }, 1000);
+
+  // Copos de nieve
+  setInterval(() => {
+    const snow = document.createElement('div');
+    snow.className = 'snowflake';
+    snow.innerHTML = '❄';
+    snow.style.left = Math.random() * 100 + 'vw';
+    snow.style.fontSize = Math.random() * 10 + 10 + 'px';
+    snow.style.animationDuration = Math.random() * 3 + 5 + 's';
+    document.body.appendChild(snow);
+    setTimeout(() => snow.remove(), 8000);
+  }, 300);
+</script>
+
+</body>
+</html>
